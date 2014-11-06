@@ -4,19 +4,19 @@ echo "This script requires root privileges, you will be asked your sudo password
 
 
 # Setup PuppetLabs repository
-echo -n "Getting PuppetLabs Source"
+echo -e "Getting PuppetLabs Source"
 DISTRO=$(grep DISTRIB_CODENAME /etc/lsb-release | awk -F= '{print $2}')
 wget -q https://apt.puppetlabs.com/puppetlabs-release-$DISTRO.deb
 sudo dpkg -i puppetlabs-release-$DISTRO.deb
-echo -n "Running apt-get update"
+echo -e "Running apt-get update"
 sudo apt-get update -y -qq
 
 # Install puppet without the agent init script
-echo -n "Installing Puppet"
+echo -e "Installing Puppet"
 sudo apt-get install git puppet-common hiera -y -qq
 
 # Download uboxen code
-echo -n "Fetching uBoxen"
+echo -e "Fetching uBoxen"
 cd /opt
 [ ! -d /opt/ubuntu-boxen ] && sudo git clone https://github.com/Americas/ubuntu-boxen.git
 
