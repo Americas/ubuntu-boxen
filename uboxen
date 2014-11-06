@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 # get a module from puppet-forge
 function forge()
@@ -35,40 +35,48 @@ function etckeep()
 CACHE=/tmp/uboxen
 [ ! -d $CACHE ] && mkdir $CACHE
 
-echo -n "Setup Mercurial? (Y/n): "
-read -n 1 hgsetup
-hgsetup="$(echo $hgsetup | tr '[:upper:]' '[:lower:]')"
-if [ "$hgsetup" = "" ] || [ "$hgsetup" = "y" ]; then
-  FACTER_HGLOGIN=$(printenv FACTER_HGLOGIN)
-  if [ "$FACTER_HGLOGIN" = "" ]; then
-    echo -n "Please enter your Mercurial username: "
-    read FACTER_HGLOGIN
-    export FACTER_HGLOGIN
-  fi
-  FACTER_HGEMAIL=$(printenv FACTER_HGEMAIL)
-  if [ "$FACTER_HGEMAIL" = "" ]; then
-    echo -n "Please enter your Mercurial e-mail: "
-    read FACTER_HGEMAIL
-    export FACTER_HGEMAIL
-  fi
+FACTER_HGLOGIN=$(printenv FACTER_HGLOGIN)
+FACTER_HGEMAIL=$(printenv FACTER_HGEMAIL)
+
+if [ "$FACTER_HGLOGIN" = "" ] || [ "$FACTER_HGEMAIL" = "" ]; then
+
+   echo -n "Setup Mercurial? (Y/n): "
+   read -n 1 hgsetup
+   echo
+   hgsetup="$(echo $hgsetup | tr '[:upper:]' '[:lower:]')"
+
+   if [ "$hgsetup" = "" ] || [ "$hgsetup" = "y" ]; then
+
+      echo -n "Please enter your Mercurial username: "
+      read FACTER_HGLOGIN
+      export FACTER_HGLOGIN
+
+      echo -n "Please enter your Github e-mail: "
+      read FACTER_HGEMAIL
+      export FACTER_HGEMAIL
+   fi
 fi
 
-echo -n "Setup Github? (Y/n): "
-read -n 1 gitsetup
-gitsetup="$(echo $gitsetup | tr '[:upper:]' '[:lower:]')"
-if [ "$gitsetup" = "" ] || [ "$gitsetup" = "y" ]; then
-  FACTER_GITLOGIN=$(printenv FACTER_GITLOGIN)
-  if [ "$FACTER_GITLOGIN" = "" ]; then
-    echo -n "Please enter your Mercurial username: "
-    read FACTER_GITLOGIN
-    export FACTER_GITLOGIN
-  fi
-  FACTER_GITEMAIL=$(printenv FACTER_GITEMAIL)
-  if [ "$FACTER_GITEMAIL" = "" ]; then
-    echo -n "Please enter your Mercurial e-mail: "
-    read FACTER_GITEMAIL
-    export FACTER_GITEMAIL
-  fi
+FACTER_GITLOGIN=$(printenv FACTER_GITLOGIN)
+FACTER_GITEMAIL=$(printenv FACTER_GITEMAIL)
+
+if [ "$FACTER_GITLOGIN" = "" ] || [ "$FACTER_GITEMAIL" = "" ]; then
+
+   echo -n "Setup Github? (Y/n): "
+   read -n 1 gitsetup
+   echo
+   gitsetup="$(echo $gitsetup | tr '[:upper:]' '[:lower:]')"
+
+   if [ "$gitsetup" = "" ] || [ "$gitsetup" = "y" ]; then
+
+      echo -n "Please enter your Github username: "
+      read FACTER_GITLOGIN
+      export FACTER_GITLOGIN
+
+      echo -n "Please enter your Github e-mail: "
+      read FACTER_GITEMAIL
+      export FACTER_GITEMAIL
+   fi
 fi
 
 forge puppetlabs stdlib
@@ -80,18 +88,13 @@ forge saz sudo
 forge thomasvandoren etckeeper
 forge garethr docker 
 forge willdurand composer
-forge puppetlabs mongodb 
 forge nodes php
 
-MYPATH=$(dirname $0)
-
 etckeep "Before uBoxen run"
-#sudo puppet apply $MYPATH/uboxen.pp 
 sudo puppet apply /etc/puppet/manifests/uboxen.pp 
 etckeep "After uBoxen run"
 
 # Clean module upgrade files
 sudo puppet resource tidy $CACHE age=1m 
-
 
 exit 0

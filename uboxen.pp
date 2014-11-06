@@ -172,12 +172,17 @@ class sublime_text_3::config {
 
 class sublime_text_3 {
 
+  wget::fetch {
+    source      => 'http://c758482.r82.cf2.rackcdn.com/sublime-text_build-3065_amd64.deb',
+    destination => '/temp/sublime-text.deb',
+  }
+
   package { 'SublimeText3':
     provider => 'dpkg',
  	ensure   => latest,
-    source   => 'http://c758482.r82.cf2.rackcdn.com/sublime-text_build-3065_amd64.deb';
+    source   => '/temp/sublime-text.deb';
   }
-  
+
   require sublime_text_3::config
 
   file { [
@@ -292,9 +297,10 @@ node default {
     groups => [ 'adm', 'sudo' ],
   }
  
-  class { 'homeshick':
-    username => $unix_user,
-  }
+  # PRL:TOFIX
+  #class { 'homeshick':
+  #  username => $unix_user,
+  #}
 
   # Multimedia stuff for RaiSmith project
   $others = [ 'ubuntu-restricted-extras' ]
