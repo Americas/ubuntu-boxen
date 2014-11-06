@@ -157,7 +157,7 @@ define bash::rc(
 
 #Sublime Text 3 & Package Control
 class sublime_text_3::config {
-  $dir = "/home/${id}/.config/sublime-text-3"
+  $dir = "/home/$::id/.config/sublime-text-3"
   $packages_dir = "${dir}/Packages"
   $user_packages_dir = "${packages_dir}/User"
   $installed_packages_dir = "${dir}/Installed Packages"
@@ -171,12 +171,14 @@ class sublime_text_3::config {
 }
 
 class sublime_text_3 {
-  require sublime_text_3::config
 
   package { 'SublimeText3':
     provider => 'dpkg',
+ 	ensure   => latest,
     source   => 'http://c758482.r82.cf2.rackcdn.com/sublime-text_build-3065_amd64.deb';
   }
+  
+  require sublime_text_3::config
 
   file { [
     $sublime_text_3::config::dir,
@@ -230,7 +232,7 @@ class vagrant {
   }
   
   wget::fetch { 'vagrant-bash-completion':
-    source      => 'https://github.com/kura/vagrant-bash-completion/raw/master/vagrant',
+    source      => 'https://raw.githubusercontent.com/kura/vagrant-bash-completion/master/etc/bash_completion.d/vagrant',
     destination => '/etc/bash_completion.d/vagrant',
   }
 
@@ -275,7 +277,7 @@ define vagrant::box(
 
 node default {
 
-  $unix_user = ${id}
+  $unix_user = $::id
   $unix_home = "/home/${unix_user}"
 
   git::config { 'user.name' : user => $unix_user, value => $::GITNAME }
