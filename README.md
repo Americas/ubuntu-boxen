@@ -2,7 +2,7 @@
 ubuntu-boxen
 ============
 
-A more generic notebook setup using Puppet and basic idea from GitHub Boxen and lorello/ubuntu/boxen[lorello's uBoxen](https://github.com/lorello/ubuntu-boxen)
+A more generic notebook setup using Puppet and basic idea from GitHub Boxen and [lorello's uBoxen](https://github.com/lorello/ubuntu-boxen)
 
 Setup
 -----
