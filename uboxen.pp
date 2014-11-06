@@ -172,15 +172,15 @@ class sublime_text_3::config {
 
 class sublime_text_3 {
 
-  wget::fetch {
+  wget::fetch { 'sublime-text':
     source      => 'http://c758482.r82.cf2.rackcdn.com/sublime-text_build-3065_amd64.deb',
-    destination => '/temp/sublime-text.deb',
+    destination => '/tmp/sublime-text.deb';
   }
 
   package { 'SublimeText3':
     provider => 'dpkg',
  	ensure   => latest,
-    source   => '/temp/sublime-text.deb';
+    source   => '/tmp/sublime-text.deb';
   }
 
   require sublime_text_3::config
