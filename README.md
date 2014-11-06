@@ -6,4 +6,4 @@ A more generic notebook setup using Puppet and basic idea from GitHub Boxen and 
 
 Setup
 -----
-    wget -O- -q https://raw2.github.com/Americas/ubuntu-boxen/master/install.sh | /bin/bash
+    wget -O- -q https://raw.githubusercontent.com/Americas/ubuntu-boxen/master/install.sh | /bin/bash
