@@ -268,10 +268,6 @@ node generic_host {
 
 }
 
-node "ukraina.openweb.it" inherits generic_host {
-  include docker
-}
-
 node generic_desktop inherits generic_host {
 
  # General dns conf
@@ -291,63 +287,117 @@ node generic_desktop inherits generic_host {
   class { 'sudo': 
     require	=> Package['ruby-hiera'],
   }
-  sudo::conf { 'wheel-group':
-    priority => 10,
-    content  => "%wheel ALL=(ALL) NOPASSWD: ALL",
-  }
-  group { 'wheel':
-    ensure => 'present',
-  }
 
   include docker
   include vagrant 
+  include sublime_text_3
+  include sublime_text_3::package_control
 
   package { 'skype':
     require => Apt::Source['canonical-partner'],
   }
 
   apt::source { 'canonical-partner':
-    location  => 'http://archive.canonical.com/ubuntu',
-    repos     => 'partner',
-    include_src       => true
+    location  	=> 'http://archive.canonical.com/ubuntu',
+    repos     	=> 'partner',
+    include_src => true
   }
 
   # Google 
   apt::source { 'google-chrome':
     location  	=> 'http://dl.google.com/linux/chrome/deb/',
     release   	=> 'stable',
-    key           => '7FAC5991',
-    include_src   => false,
+    key 		=> '7FAC5991',
+    include_src	=> false,
   }
   apt::source { 'google-talkplugin':
     location  	=> 'http://dl.google.com/linux/talkplugin/deb/',
     release   	=> 'stable',
-    key           => '7FAC5991',
-    include_src   => false,
+    key         => '7FAC5991',
+    include_src => false,
   }
 
 
-  package { 'dkms': 		      ensure	=> latest }
+  package { 'dkms': 		      
+  	ensure	=> latest
+  }
 
-  package { 'gedit':          ensure => latest }
-  wget::fetch { 'gedit-solarized-theme-dark':
-    source      => 'https://raw.github.com/altercation/solarized/master/gedit/solarized-dark.xml',
-    destination => '/usr/share/gtksourceview-3.0/styles/solarized-dark.xml',
-    require     => Package['gedit'],
-  }
-  wget::fetch { 'gedit-solarized-theme-light':
-    source      => 'https://raw.github.com/altercation/solarized/master/gedit/solarized-light.xml',
-    destination => '/usr/share/gtksourceview-3.0/styles/solarized-light.xml',
-    require     => Package['gedit'],
-  }
 
 }
+#Sublime Text 3 & Package Control
+class sublime_text_3::config {
+  $dir = "/home/${id}/.config/sublime-text-3"
+  $packages_dir = "${dir}/Packages"
+  $user_packages_dir = "${packages_dir}/User"
+  $installed_packages_dir = "${dir}/Installed Packages"
 
+  anchor { [
+    $dir,
+    $packages_dir,
+    $user_packages_dir,
+    $installed_packages_dir
+  ]: }
+}
+
+class sublime_text_3 {
+  require sublime_text_3::config
+
+  package { 'SublimeText3':
+    provider => 'dpkg',
+    source   => 'http://c758482.r82.cf2.rackcdn.com/sublime-text_build-3065_amd64.deb';
+  }
+
+  file { [
+    $sublime_text_3::config::dir,
+    $sublime_text_3::config::packages_dir,
+    $sublime_text_3::config::user_packages_dir,
+    $sublime_text_3::config::installed_packages_dir
+  ]:
+    ensure => directory
+  }
+
+  file { "/bin/subl":
+    ensure  => link,
+    target  => '/opt/sublime_text/sublime_text',
+    mode    => '0755',
+    require => Package['SublimeText3'],
+  }
+}
+
+class sublime_text_3::package_control {
+  sublime_text_3::package { 'Package Control':
+    source => 'https://sublime.wbond.net/Package%20Control.sublime-package'
+  }
+}
+
+define sublime_text_3::package($source, $branch = 'master') {
+  require sublime_text_3::config
+
+  if $source =~ /\.sublime-package$/ {
+    $package_file = "${sublime_text_3::config::installed_packages_dir}/${name}.sublime-package"
+    exec { "download Sublime Text 3 package '${name}'":
+      command => "curl ${source} -L -q -o '${package_file}'",
+      creates => $package_file,
+      require => File[$sublime_text_3::config::installed_packages_dir]
+    }
+  } else {
+    repository { "${sublime_text_3::config::packages_dir}/${name}":
+      ensure => $branch,
+      source => $source,
+    }
+  }
+}
 
 class vagrant {
 
-  package { 'virtualbox': ensure	=> latest }
-  package { 'vagrant': 		    ensure	=> latest }
+  package { 'virtualbox': 
+  	ensure	=> latest 
+  }
+  
+  package { 'vagrant':
+  	ensure	=> latest 
+  }
+  
   wget::fetch { 'vagrant-bash-completion':
     source      => 'https://github.com/kura/vagrant-bash-completion/raw/master/vagrant',
     destination => '/etc/bash_completion.d/vagrant',
@@ -394,17 +444,11 @@ define vagrant::box(
 
 node default inherits generic_desktop {
 
-  $unix_user = 'lorello'
+  $unix_user = ${id}
   $unix_home = "/home/${unix_user}"
-  $email     = 'lorenzo.salvadorini@softecspa.it'
 
-  file { "$unix_home/.xprofile" :
-    content => "SYSRESOURCES=/etc/X11/Xresources\nUSRRESOURCES=\$HOME/.Xresources\n",
-    owner    => $unix_user,
-  }
-
-  git::config { 'user.name' : user => $unix_user, value => $unix_user }
-  git::config { 'user.email': user => $unix_user, value => $email }
+  git::config { 'user.name' : user => $unix_user, value => $::GITNAME }
+  git::config { 'user.email': user => $unix_user, value => $::GITEMAIL }
 
   sudo::conf { $unix_user:
     priority => 10,
@@ -412,105 +456,16 @@ node default inherits generic_desktop {
   }
  
   user { $unix_user :
-    groups => [ 'adm', 'sudo', 'wheel' ],
+    groups => [ 'adm', 'sudo' ],
   }
  
   class { 'homeshick':
     username => $unix_user,
   }
 
-  class { 'vim':
-    user	=> $unix_user,
-    home_dir => $unix_home,
-  }
-
-  # Vim colorscheme - http://ethanschoonover.com/solarized
-  vim::plugin { 'colors-solarized':
-    source => 'https://github.com/altercation/vim-colors-solarized.git',
-  }
-  vim::plugin { 'colors-monokai':
-    source => 'https://github.com/sickill/vim-monokai.git',
-  }
-  vim::plugin { 'colors-gruvbox':
-    source => 'https://github.com/morhetz/gruvbox.git',
-  }
-  vim::rc { 'sane-text-files':
-    content => "set fileformat=unix\nset encoding=utf-8",
-  }
-  vim::rc { 'set number': }
-  vim::rc { 'set tabstop=2': }
-  vim::rc { 'set shiftwidth=2': }
-  vim::rc { 'set softtabstop=2': }
-  vim::rc { 'set expandtab': }
-  
-  vim::rc { 'set pastetoggle=<F6>': }
-
-  vim::rc { 'intuitive-split-positions': 
-    content => "set splitbelow\nset splitright",
-  }
-
-  vim::rc { 'silent! colorscheme solarized': }
-  #vim::rc { 'silent! colorscheme monokai': }
-  vim::rc { 'background-x-gui':
-    content => "if has('gui_running')\n\tset background=light\nelse\n\tset background=dark\nendif",
-  }
-  # Vim plugin: syntastic
-  vim::plugin { 'syntastic':
-    source => 'https://github.com/scrooloose/syntastic.git',
-  }
-  vim::plugin { 'tabular':
-    source => 'https://github.com/godlygeek/tabular.git',
-  }
-  vim::plugin { 'snippets':
-    source => 'https://github.com/honza/vim-snippets.git',
-  }
-  vim::plugin { 'puppet':
-    source => 'https://github.com/rodjek/vim-puppet.git',
-    require => [ Vim::Plugin['tabular'], Vim::Plugin['snippets'] ],
-  }
-  vim::plugin { 'enhanced-status-line':
-    source => 'https://github.com/millermedeiros/vim-statline.git',
-  }
-
-  vim::plugin { 'nerdtree-and-tabs-together':
-    source => 'https://github.com/jistr/vim-nerdtree-tabs.git',
-  }
-  vim::rc { 'nerdtree-start-on-console':
-    content => 'let g:nerdtree_tabs_open_on_console_startup=1',
-  }
-
-  vim::plugin { 'tasklist':
-    source => 'https://github.com/superjudge/tasklist-pathogen.git',
-  }
-
-  #vim::plugin { 'rainbow-parenthesis':
-  #  source => 'https://github.com/oblitum/rainbow.git',
-  #}
-  vim::rc { 'activate rainbow parenthesis globally':
-    content => 'let g:rainbow_active = 1',
-  }
-
-  vagrant::box { 'hhvm':
-    source   => 'https://github.com/javer/hhvm-vagrant-vm',
-    username => $unix_user,
-  }
-
-
-
   # Multimedia stuff for RaiSmith project
-  $multimedia_packages = [ 'mplayer', 'faad' ]
-  $utils_packages = [ 'network-manager-openvpn' ]
-  $others = [ 'ubuntu-restricted-extras', 'qviaggiatreno' ]
-  package { [ $multimedia_packages, $utils_packages, $others ]: ensure => latest }
+  $others = [ 'ubuntu-restricted-extras' ]
+  package { [ $others ]: ensure => latest }
 
-  # picasa
-  package { [ 'wine', 'winetricks']:  ensure => latest }
-
-
-  # mongodb
-  class {'::mongodb::globals':
-      manage_package_repo => true,
-  }->
-  class {'::mongodb::server': }
 
 }
