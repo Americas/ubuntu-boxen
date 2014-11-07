@@ -130,8 +130,8 @@ node default {
    php::module { "mysql": }
    php::module { "odbc": }
 
-   $mods = ["mcrypt"]
-   php::mod { "$mods": }
+   #$mods = ["mcrypt"]
+   #php::mod { "$mods": }
 
    class { 'composer':
       require => Package ['php5-curl'],
