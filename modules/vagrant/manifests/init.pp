@@ -6,7 +6,7 @@
 
 class vagrant {
 
-   $classes = ['bash::rc', 'wget']
+   $classes = ['bash', 'wget']
    include $classes
 
    package { 'virtualbox':

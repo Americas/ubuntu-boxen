@@ -2,7 +2,7 @@
 # https://github.com/andsens/homeshick
 class homeshick($username)
 {
-   $classes = ['bash::rc', 'vcsrepo', 'motd::usernote']
+   $classes = ['bash', 'vcsrepo', 'motd::usernote']
    include $classes
 
    validate_string($username)

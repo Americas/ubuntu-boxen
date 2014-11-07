@@ -52,7 +52,7 @@ node default {
    }
 
    include etckeeper
-   include bash::rc
+   include bash
    include apt
    include wget
    include docker
