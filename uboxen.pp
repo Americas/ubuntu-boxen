@@ -127,7 +127,7 @@ node default {
    php::module { "sybase": }
    php::module { "mcrypt": }
    php::module { "pgsql": }
-   php::module { "pgsql": }
+   php::module { "mysql": }
    php::module { "odbc": }
 
    $mods = ["mcrypt"]
