@@ -6,7 +6,6 @@ define bash::rc(
 ) {
 
    include bash
-   include concat
   
    validate_string($content)
 
