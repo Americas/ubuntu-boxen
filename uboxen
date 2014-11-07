@@ -26,11 +26,11 @@ function gh()
   MOD=$3
   if [ ! -d /etc/puppet/modules/$MOD ]; then
    echo -e "Installing $AUTHOR/$MODULE"
-   git clone https://github.com/$AUTHOR/$REPO.git /etc/puppet/modules/$MOD
+   sudo git clone https://github.com/$AUTHOR/$REPO.git /etc/puppet/modules/$MOD
   else
     echo -e "Pulling changes for $AUTHOR/$MOD"
     cd /etc/puppet/modules/$MOD
-    git pull
+    sudo git pull
     cd -
   fi
 }
@@ -62,11 +62,11 @@ if [ "$FACTER_HGLOGIN" = "" ] || [ "$FACTER_HGEMAIL" = "" ]; then
 
       echo -n "Please enter your Mercurial username: "
       read FACTER_HGLOGIN
-      export FACTER_HGLOGIN
+      sudo export FACTER_HGLOGIN
 
       echo -n "Please enter your Github e-mail: "
       read FACTER_HGEMAIL
-      export FACTER_HGEMAIL
+      sudo export FACTER_HGEMAIL
    fi
 fi
 
@@ -84,11 +84,11 @@ if [ "$FACTER_GITLOGIN" = "" ] || [ "$FACTER_GITEMAIL" = "" ]; then
 
       echo -n "Please enter your Github username: "
       read FACTER_GITLOGIN
-      export FACTER_GITLOGIN
+      sudo export FACTER_GITLOGIN
 
       echo -n "Please enter your Github e-mail: "
       read FACTER_GITEMAIL
-      export FACTER_GITEMAIL
+      sudo export FACTER_GITEMAIL
    fi
 fi
 
@@ -98,7 +98,7 @@ printenv FACTER_GITLOGIN
 printenv FACTER_GITEMAIL
 
 cd /opt/ubuntu-boxen
-git pull
+sudo git pull
 cd -
 
 forge puppetlabs stdlib
