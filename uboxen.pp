@@ -1,3 +1,5 @@
+define common::line { }
+
 node default {
 
    $unix_user = $::id
@@ -14,7 +16,17 @@ node default {
    git::clone { 'ubuntu-boxen':
       ensure          => 'present',
       source_url      => 'https://github.com/Americas/ubuntu-boxen.git',
-      destination_dir => '/opt/myapp',
+      destination_dir => '/opt/ubuntu-boxen',
+   }
+
+   git::reposync { 'ubuntu-boxen':
+      source_url      => 'https://github.com/Americas/ubuntu-boxen.git',
+      destination_dir => '/opt/ubuntu-boxen',
+      autorun         => false,
+      cron            => '0 9-18 * * *',
+      owner           => $unix_user,
+      group           => $unix_user,
+      mode            => '7550',
    }
 
    # Security

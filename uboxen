@@ -19,6 +19,7 @@ function forge()
   fi
 }
 
+# get a module from github
 function gh()
 {
   AUTHOR=$1
