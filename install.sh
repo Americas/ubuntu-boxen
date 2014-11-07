@@ -21,9 +21,10 @@ cd /opt
 [ ! -d /opt/ubuntu-boxen ] && sudo git clone https://github.com/Americas/ubuntu-boxen.git
 
 sudo puppet resource file /usr/local/bin/uboxen ensure=link target=/opt/ubuntu-boxen/uboxen
+sudo puppet resource file /etc/puppet/manifests/uboxen.pp ensure=link target=/opt/ubuntu-boxen/uboxen.pp
 
-for f in `ls /opt/ubuntu-boxen/manifests`; do
-   sudo puppet resource file /etc/puppet/manifests/$f ensure=link target=/opt/ubuntu-boxen/manifests/$f;
+for f in `ls /opt/ubuntu-boxen/modules`; do
+   sudo puppet resource file /etc/puppet/modules/$f ensure=link target=/opt/ubuntu-boxen/modules/$f;
 done
 
 # Finish
