@@ -42,6 +42,14 @@ node default {
    user { $unix_user :
       groups => [ 'adm', 'sudo' ],
    }
+
+   include etckeeper
+   include bash
+   include concat
+   include apt
+   include wget
+   include docker
+   include vagrant 
  
    # PRL:TOFIX
    #class { 'homeshick':
@@ -69,12 +77,6 @@ node default {
       content => "Domain dev.it points to localhost, use it for your dev environments",
    }
 
-   include etckeeper
-   include bash
-   include apt
-   include wget
-   include docker
-   include vagrant 
    include sublime_text_3
    include sublime_text_3::package_control
 
