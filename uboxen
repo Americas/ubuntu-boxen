@@ -105,7 +105,7 @@ cd -
 forge puppetlabs stdlib
 forge puppetlabs inifile
 forge puppetlabs apt 
-forge puppetlabs apache2 
+forge puppetlabs apache
 forge puppetlabs vcsrepo 
 forge puppetlabs concat 
 forge saz sudo
