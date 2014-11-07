@@ -8,9 +8,11 @@ function forge()
   UPGRADED=$CACHE/{$AUTHOR}_{$MODULE}.lastupgrade
   
   if [ ! -d /etc/puppet/modules/$MODULE ]; then
+   echo -e "Installing $AUTHOR/$MODULE"
     sudo puppet module install $AUTHOR/$MODULE
   else
     if [ ! -f $UPGRADED ]; then
+      echo -e "Upgrading $AUTHOR/$MODULE"
       sudo puppet module upgrade $AUTHOR/$MODULE
       touch $UPGRADED
     fi
@@ -22,7 +24,15 @@ function gh()
   AUTHOR=$1
   REPO=$2
   MOD=$3
-  git clone https://github.com/$AUTHOR/$REPO.git /etc/puppet/modules/$MOD
+  if [ ! -d /etc/puppet/modules/$MOD ]; then
+   echo -e "Installing $AUTHOR/$MODULE"
+   git clone https://github.com/$AUTHOR/$REPO.git /etc/puppet/modules/$MOD
+  else
+    echo -e "Pulling changes for $AUTHOR/$MOD"
+    cd /etc/puppet/modules/$MOD
+    git pull
+    cd -
+  fi
 }
 
 # support for etckeeper
@@ -81,6 +91,15 @@ if [ "$FACTER_GITLOGIN" = "" ] || [ "$FACTER_GITEMAIL" = "" ]; then
       export FACTER_GITEMAIL
    fi
 fi
+
+printenv FACTER_HGLOGIN
+printenv FACTER_HGEMAIL
+printenv FACTER_GITLOGIN
+printenv FACTER_GITEMAIL
+
+cd /opt/ubuntu-boxen
+git pull
+cd -
 
 forge puppetlabs stdlib
 forge puppetlabs inifile
