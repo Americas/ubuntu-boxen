@@ -23,12 +23,11 @@ node default {
 
    include etckeeper
    include bash
-   include concat
    include apt
    include wget
    include docker
    include vagrant 
-   
+
    $unix_user = $::id
    $unix_home = "/home/${unix_user}"
 
