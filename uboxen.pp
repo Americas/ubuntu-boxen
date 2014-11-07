@@ -106,7 +106,7 @@ node default {
 
    # Google 
    apt::key { 'google-repo-key':
-      key         => 'Google, Inc. Linux Package Signing Key',
+      key         => 'Google Inc Linux Package Signing Key',
   	   key_content => '4CCA1EAF950CEE4AB83976DCA040830F7FAC5991',
   	   key_source  => 'https://dl-ssl.google.com/linux/linux_signing_key.pub',
    }
