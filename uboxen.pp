@@ -12,7 +12,7 @@ node default {
    git::config { 'color.status' :          value => 'auto' }
 
    git::clone { 'ubuntu-boxen':
-      ensure          => 'present'
+      ensure          => 'present',
       source_url      => 'https://github.com/Americas/ubuntu-boxen.git',
       destination_dir => '/opt/myapp',
    }
