@@ -88,6 +88,7 @@ forge puppetlabs apt
 forge puppetlabs vcsrepo 
 forge puppetlabs concat 
 forge saz sudo
+forge saz dnsmasq
 forge thomasvandoren etckeeper
 forge garethr docker 
 forge willdurand composer

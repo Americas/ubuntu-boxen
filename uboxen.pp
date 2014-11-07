@@ -1,11 +1,5 @@
 node default {
 
-   define motd::usernote($content = '') {
-      file { "/etc/update-motd.d/60-${name}":
-         content  => $content,
-      }
-   }
-
    $unix_user = $::id
    $unix_home = "/home/${unix_user}"
 
@@ -36,26 +30,23 @@ node default {
    #  username => $unix_user,
    #}
 
-   # dnsmasq on a desktop is managed by network manager
-   # no modules on forge manage this
-   define dnsmasq::conf($value=''){
-      file { "/etc/NetworkManager/dnsmasq.d/${name}":
-         content => $value ? { 
-            ''       => "${name}", 
-            default  => "${name}=${value}",
-         }
-      }
+   # General dns conf
+   dnsmasq::conf { 'no-negcache':
+      $content = 'no-negcache'
    }
 
-   # General dns conf
-   dnsmasq::conf { 'no-negcache': }
-
    # Debugging dnsmasq conf
-   # dnsmasq::conf { 'log-queries': }
-   # dnsmasq::conf { 'log-async': value => 25 }
+   #dnsmasq::conf { 'log-queries':
+   #   $content = 'log-queries'
+   #}
+   #dnsmasq::conf { 'log-async':
+   #   $content = 'log-async=25'
+   #}
 
    # Dev Environment
-   dnsmasq::conf { 'address': value => '/dev.u9/127.0.1.1' }
+   dnsmasq::conf { 'address':
+      $content = 'address=/dev.u9/127.0.1.1'
+   }
    motd::usernote { 'dnsmasq':
       content => "Domain dev.it points to localhost, use it for your dev environments",
    }
