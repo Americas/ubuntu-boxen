@@ -26,6 +26,7 @@ node default {
    include wget
    include docker
    include vagrant 
+   include apache
 
    $unix_user = $::id
    $unix_home = "/home/${unix_user}"
