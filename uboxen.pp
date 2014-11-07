@@ -2,6 +2,33 @@ define common::line { }
 
 node default {
 
+   # Common utilities
+   $common_packages = [
+      'selinux',
+      'puppet',
+      'ruby-hiera',
+      'htop',
+      'ipcalc',
+      'hwdata',
+      'mercurial',
+      'subversion',
+      'aptitude',
+      'ppa-purge',
+      'curl',
+      'pwgen',
+      'nmap',
+      'tcpdump',
+   ]
+   package { $common_packages : ensure => latest }
+
+   include etckeeper
+   include bash
+   include concat
+   include apt
+   include wget
+   include docker
+   include vagrant 
+   
    $unix_user = $::id
    $unix_home = "/home/${unix_user}"
 
@@ -43,14 +70,6 @@ node default {
       groups => [ 'adm', 'sudo' ],
    }
 
-   include etckeeper
-   include bash
-   include concat
-   include apt
-   include wget
-   include docker
-   include vagrant 
- 
    # PRL:TOFIX
    #class { 'homeshick':
    #  username => $unix_user,
@@ -115,24 +134,6 @@ node default {
 
    # General DEFAULTS
    Exec { path => "/usr/bin:/usr/sbin/:/bin:/sbin" }
-
-   # Common utilities
-   $common_packages = [
-      'puppet',
-      'ruby-hiera',
-      'htop',
-      'ipcalc',
-      'hwdata',
-      'mercurial',
-      'subversion',
-      'aptitude',
-      'ppa-purge',
-      'curl',
-      'pwgen',
-      'nmap',
-      'tcpdump',
-   ]
-   package { $common_packages : ensure => latest }
 
    # Puppet config
    file { '/etc/puppet/hiera.yaml':
