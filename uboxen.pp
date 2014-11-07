@@ -32,20 +32,20 @@ node default {
 
    # General dns conf
    dnsmasq::conf { 'no-negcache':
-      $content = 'no-negcache'
+      content => 'no-negcache'
    }
 
    # Debugging dnsmasq conf
    #dnsmasq::conf { 'log-queries':
-   #   $content = 'log-queries'
+   #   content => 'log-queries'
    #}
    #dnsmasq::conf { 'log-async':
-   #   $content = 'log-async=25'
+   #   content => 'log-async=25'
    #}
 
    # Dev Environment
    dnsmasq::conf { 'address':
-      $content = 'address=/dev.u9/127.0.1.1'
+      content => 'address=/dev.u9/127.0.1.1'
    }
    motd::usernote { 'dnsmasq':
       content => "Domain dev.it points to localhost, use it for your dev environments",
