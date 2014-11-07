@@ -3,13 +3,19 @@ node default {
    $unix_user = $::id
    $unix_home = "/home/${unix_user}"
 
-   github::config { 'user.name' : user => $unix_user, value => $::GITNAME }
-   github::config { 'user.email': user => $unix_user, value => $::GITEMAIL }
-   github::config { 'alias.up' :              value => 'pull origin' }
-   github::config { 'core.sharedRepository':  value => 'group' }
-   github::config { 'color.interactive':      value => 'auto' }
-   github::config { 'color.showbranch':       value => 'auto' }
-   github::config { 'color.status' :          value => 'auto' }
+   git::config { 'user.name' : user => $unix_user, value => $::GITNAME }
+   git::config { 'user.email': user => $unix_user, value => $::GITEMAIL }
+   git::config { 'alias.up' :              value => 'pull origin' }
+   git::config { 'core.sharedRepository':  value => 'group' }
+   git::config { 'color.interactive':      value => 'auto' }
+   git::config { 'color.showbranch':       value => 'auto' }
+   git::config { 'color.status' :          value => 'auto' }
+
+   git::clone { 'ubuntu-boxen':
+      ensure          => 'present'
+      source_url      => 'https://github.com/Americas/ubuntu-boxen.git',
+      destination_dir => '/opt/myapp',
+   }
 
    # Security
    class { 'sudo': 
