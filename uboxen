@@ -91,7 +91,7 @@ forge saz sudo
 forge thomasvandoren etckeeper
 forge garethr docker 
 forge willdurand composer
-forge nodes php
+forge example42 php
 
 etckeep "Before uBoxen run"
 sudo puppet apply /etc/puppet/manifests/uboxen.pp 
