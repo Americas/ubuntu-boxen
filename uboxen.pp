@@ -106,8 +106,9 @@ node default {
 
    # Google 
    apt::key { 'google-repo-key':
-  	   key        => '4CCA1EAF950CEE4AB83976DCA040830F7FAC5991',
-  	   key_source => 'https://dl-ssl.google.com/linux/linux_signing_key.pub',
+      key         => 'Google, Inc. Linux Package Signing Key',
+  	   key_content => '4CCA1EAF950CEE4AB83976DCA040830F7FAC5991',
+  	   key_source  => 'https://dl-ssl.google.com/linux/linux_signing_key.pub',
    }
 
    apt::source { 'google-chrome':
