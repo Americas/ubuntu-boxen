@@ -2,7 +2,7 @@
 # https://github.com/andsens/homeshick
 class homeshick($username)
 {
-   $classes = ['bash', 'vcsrepo', 'motd::usernote']
+   $classes = ['bash','git']
    include $classes
 
    validate_string($username)
@@ -24,24 +24,29 @@ class homeshick($username)
 
    bash::rc { 'homeshick command':
       content => '[ -d ~/.homesick ] && source $HOME/.homesick/repos/homeshick/homeshick.sh',
+      notify => Exec['source bash'],
    }
 
    # onlogin check if all managed files are updated
    bash::rc { 'homeshick refresh':
       content => '[ -d ~/.homesick ] && homeshick --quiet refresh',
+      notify => Exec['source bash'],
+   }
+
+   # add auto completion
+   bash::rc { 'homeshick autocompletions':
+      content => '[ -d ~/.homesick ] && source $HOME/.homesick/repos/homeshick/completions/homeshick-completion.bash',
+      notify => Exec['source bash'],
    }
 
    motd::usernote { 'homeshick':
       content       => "dotfiles are managed by homeshick, for more info https://github.com/andsens/homeshick",
    }
 
-   # basic setup for the first use:
-   # homeshick generate dotfiles
-   # homeshick track dotfiles ~/.bashrc
-   exec { "homeshick clone ${username}/dotfiles":
-      creates       => "${userhome}/.homesick/repos/dotfiles",
+   file { 'homeshick link':
+      path          => '/usr/bin/homeshick',
+      ensure        => link,
+      target        => "${userhome}/.homesick/repos/homeshick/bin/homeshick",
    }
-   exec { "homeshick clone ${username}/scripts":
-      creates       => "${userhome}/.homesick/repos/scripts",
-   }
+
 }

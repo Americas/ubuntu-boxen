@@ -2,10 +2,13 @@ define common::line { }
 
 node default {
 
+   # General DEFAULTS
+   Exec { path => "/usr/bin:/usr/sbin/:/bin:/sbin" }
+
+   include bash
+
    # Common utilities
    $common_packages = [
-      'puppet',
-      'ruby-hiera',
       'htop',
       'ipcalc',
       'hwdata',
@@ -16,34 +19,30 @@ node default {
       'curl',
       'pwgen',
       'nmap',
-      'tcpdump',
+      'tcpdump'
    ]
-   package { $common_packages : ensure => latest }
+   package { $common_packages : 
+      ensure => latest 
+   }
 
    include etckeeper
-   include bash
    include apt
    include wget
    include docker
    include vagrant 
    include apache
 
-   $unix_user = $::id
+   $unix_user = $::ubuser
    $unix_home = "/home/${unix_user}"
 
-   git::config { 'user.name' : user => $unix_user, value => $::GITNAME }
-   git::config { 'user.email': user => $unix_user, value => $::GITEMAIL }
-   git::config { 'alias.up' :              value => 'pull origin' }
-   git::config { 'core.sharedRepository':  value => 'group' }
-   git::config { 'color.interactive':      value => 'auto' }
-   git::config { 'color.showbranch':       value => 'auto' }
-   git::config { 'color.status' :          value => 'auto' }
-
-   git::clone { 'ubuntu-boxen':
-      ensure          => 'present',
-      source_url      => 'https://github.com/Americas/ubuntu-boxen.git',
-      destination_dir => '/opt/ubuntu-boxen',
-   }
+   git::config { 'user.name'            : value => $::gitlogin  , user => $unix_user }
+   git::config { 'user.email'           : value => $::gitemail  , user => $unix_user }
+   git::config { 'push.default'         : value => 'simple'     , user => $unix_user }
+   git::config { 'alias.up'             : value => 'pull origin'                     }
+   git::config { 'core.sharedRepository': value => 'group'                           }
+   git::config { 'color.interactive'    : value => 'auto'                            }
+   git::config { 'color.showbranch'     : value => 'auto'                            }
+   git::config { 'color.status'         : value => 'auto'                            }
 
    git::reposync { 'ubuntu-boxen':
       source_url      => 'https://github.com/Americas/ubuntu-boxen.git',
@@ -54,10 +53,14 @@ node default {
       group           => $unix_user,
       mode            => '7550',
    }
-
+   
    # Security
    class { 'sudo': 
-      require => Package['ruby-hiera'],
+      #require => Package['ruby-hiera'],
+   }
+
+   class { 'homeshick':
+      username => $unix_user,
    }
 
    sudo::conf { $unix_user:
@@ -69,10 +72,17 @@ node default {
       groups => [ 'adm', 'sudo' ],
    }
 
-   # PRL:TOFIX
-   #class { 'homeshick':
-   #  username => $unix_user,
-   #}
+   homeshick::clone{'homeshick dotfiles':
+     username => $unix_user,
+     gitlogin => $::gitlogin,
+     repo     => 'dotfiles'
+   }
+
+   homeshick::clone{'homeshick scripts':
+     username => $unix_user,
+     gitlogin => $::gitlogin,
+     repo     => 'scripts'
+   }
 
    # General dns conf
    dnsmasq::conf { 'no-negcache':
@@ -92,7 +102,7 @@ node default {
       content => 'address=/dev.u9/127.0.1.1'
    }
    motd::usernote { 'dnsmasq':
-      content => "Domain dev.it points to localhost, use it for your dev environments",
+      content => "Domain dev.u9 points to localhost, use it for your dev environments",
    }
 
    include sublime_text_3
@@ -116,6 +126,7 @@ node default {
       key         => '7FAC5991',
       include_src => false,
    }
+
    apt::source { 'google-talkplugin':
       location  	=> 'http://dl.google.com/linux/talkplugin/deb/',
       release   	=> 'stable',
@@ -129,15 +140,6 @@ node default {
 
    package { 'dkms':
   	   ensure	=> latest
-   }
-
-   # General DEFAULTS
-   Exec { path => "/usr/bin:/usr/sbin/:/bin:/sbin" }
-
-   # Puppet config
-   file { '/etc/puppet/hiera.yaml':
-      content	=> '---',
-      require	=> Package['ruby-hiera'],
    }
 
    # PHP development env
@@ -173,8 +175,12 @@ node default {
    bash::rc { 'alias df="df -kTh"': }
    bash::rc { 'alias ..="cd .."': }
    bash::rc { 'alias svim="sudo vim"': }
-   bash::rc { 'Sort by date, most recent last': content => 'alias lt="ls -ltr"' }
-   bash::rc { 'Sort by size, biggest last': content => 'alias lk="ls -lSr"' }
+   bash::rc { 'Sort by date, most recent last': 
+      content => 'alias lt="ls -ltr"' 
+   }
+   bash::rc { 'Sort by size, biggest last': 
+      content => 'alias lk="ls -lSr"' 
+   }
    bash::rc { 'alias grep="grep --color=always"': }
 
    bash::rc { 'alias update="sudo apt-get update"': }
@@ -192,5 +198,11 @@ node default {
 
    bash::rc { 'Command-line calculator': 
       content => "calc (){\n\techo \"\$*\" | bc -l;\n}",
+   }
+
+   #Vagrant box Homestead
+   vagrant::box { 'Laravel':
+      source   => "https://github.com/laravel/homestead.git",
+      username => $unix_user,
    }
 }

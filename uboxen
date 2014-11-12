@@ -49,8 +49,17 @@ function etckeep()
 CACHE=/tmp/uboxen
 [ ! -d $CACHE ] && mkdir $CACHE
 
-FACTER_HGLOGIN=$(printenv FACTER_HGLOGIN)
-FACTER_HGEMAIL=$(printenv FACTER_HGEMAIL)
+sudo mkdir -p /etc/facter/facts.d
+
+FACTER_UBUSER=$(sudo facter UBUSER)
+if [ "$FACTER_UBUSER" = "" ]; then
+  FACTER_UBUSER=$(facter id)
+  sudo sh -c "echo 'echo UBUSER="$FACTER_UBUSER"' >> /etc/facter/facts.d/profile.sh"
+  sudo chmod +x /etc/facter/facts.d/profile.sh
+fi
+
+FACTER_HGLOGIN=$(sudo facter HGLOGIN)
+FACTER_HGEMAIL=$(sudo facter HGEMAIL)
 
 if [ "$FACTER_HGLOGIN" = "" ] || [ "$FACTER_HGEMAIL" = "" ]; then
 
@@ -63,16 +72,17 @@ if [ "$FACTER_HGLOGIN" = "" ] || [ "$FACTER_HGEMAIL" = "" ]; then
 
       echo -n "Please enter your Mercurial username: "
       read FACTER_HGLOGIN
-      export FACTER_HGLOGIN
+      sudo sh -c "echo 'echo HGLOGIN="$FACTER_HGLOGIN"' >> /etc/facter/facts.d/mercurial.sh"
 
       echo -n "Please enter your Github e-mail: "
       read FACTER_HGEMAIL
-      export FACTER_HGEMAIL
+      sudo sh -c "echo 'echo HGEMAIL="$FACTER_HGEMAIL"' >> /etc/facter/facts.d/mercurial.sh"
+      sudo chmod +x /etc/facter/facts.d/mercurial.sh
    fi
 fi
 
-FACTER_GITLOGIN=$(printenv FACTER_GITLOGIN)
-FACTER_GITEMAIL=$(printenv FACTER_GITEMAIL)
+FACTER_GITLOGIN=$(sudo facter GITLOGIN)
+FACTER_GITEMAIL=$(sudo facter GITEMAIL)
 
 if [ "$FACTER_GITLOGIN" = "" ] || [ "$FACTER_GITEMAIL" = "" ]; then
 
@@ -85,18 +95,14 @@ if [ "$FACTER_GITLOGIN" = "" ] || [ "$FACTER_GITEMAIL" = "" ]; then
 
       echo -n "Please enter your Github username: "
       read FACTER_GITLOGIN
-      export FACTER_GITLOGIN
+      sudo sh -c "echo 'echo GITLOGIN="$FACTER_GITLOGIN"' >> /etc/facter/facts.d/github.sh"
 
       echo -n "Please enter your Github e-mail: "
       read FACTER_GITEMAIL
-      export FACTER_GITEMAIL
+      sudo sh -c "echo 'echo GITEMAIL="$FACTER_GITEMAIL"' >> /etc/facter/facts.d/github.sh"
+      sudo chmod +x /etc/facter/facts.d/github.sh
    fi
 fi
-
-printenv FACTER_HGLOGIN
-printenv FACTER_HGEMAIL
-printenv FACTER_GITLOGIN
-printenv FACTER_GITEMAIL
 
 cd /opt/ubuntu-boxen
 sudo git pull

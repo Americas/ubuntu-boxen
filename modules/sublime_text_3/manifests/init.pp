@@ -9,6 +9,12 @@ class sublime_text_3 {
       destination => '/tmp/sublime-text.deb',
   	   timeout     => 0,
   	   verbose     => false,
+      before      => Package['SublimeText3'],
+   }
+
+   package { 'SublimeTextInstaller':
+      ensure   => purged,
+      before   => Package['SublimeText3'],
    }
 
    package { 'SublimeText3':
